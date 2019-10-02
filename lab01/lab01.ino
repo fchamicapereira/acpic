@@ -1,4 +1,4 @@
-const int BUTTON = 1;
+const int BUTTON = 6;
 const int YELLOW = 2;
 const int BLUE = 3;
 const int RED = 4;
@@ -8,6 +8,7 @@ const unsigned long dt = 1000; // 1 second
 short ledState = 0;
 int buttonInput = LOW;
 int prevButtonInput  = LOW;
+int buttonState = 0;
 bool freeze = false;
 
 void stepLedState() {
@@ -38,13 +39,28 @@ void stepLedState() {
 }
 
 void stepButtonState(int buttonIntput) {
-  if (prevButtonInput == buttonInput) { return; }
-
-  if (prevButtonInput == HIGH && buttonInput == LOW) {
-    freeze = !freeze;
+  switch (buttonState) {
+    case 0:
+      if (buttonInput == HIGH) {
+        freeze = true;
+        buttonState += 1;
+      }
+      break;
+    case 1:
+      if (buttonInput == LOW) buttonState = 2;
+      break;
+    case 2:
+      if (buttonInput == HIGH) {
+        buttonState = 3;
+        freeze = false;
+      }
+      break;
+    case 3:
+      if (buttonInput == LOW) {
+        buttonState = 0;
+      }
+      break;
   }
-
-  prevButtonInput = buttonInput;
 }
 
 void setup() {
