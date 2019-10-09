@@ -7,7 +7,6 @@ const unsigned long dt = 1000; // 1 second
 
 short ledState = 0;
 int buttonInput = LOW;
-int prevButtonInput  = LOW;
 int buttonState = 0;
 bool freeze = false;
 
