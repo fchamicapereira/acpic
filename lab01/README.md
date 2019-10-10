@@ -4,34 +4,34 @@
 
 Mean power estimation, resistence power and LED power:
 
-![definitions_p](/images/definitions_p.svg?raw=true&sanitize=true)
+![definitions_p](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/definitions_p.svg?sanitize=true)
 
 Current:
 
-![alt text](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/definitions_i.svg)
+![definitions_i](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/definitions_i.svg?sanitize=true)
 
 Resistence:
 
-![alt text](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/definitions_r.svg)
+![definitions_r](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/definitions_r.svg?sanitize=true)
 
 Voltage:
 
-![alt text](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/definitions_v.svg)
+![definitions_v](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/definitions_v.svg?sanitize=true)
 
 ## Calculations
 
 
 Getting the voltage drop on each LED:
 
-![alt text](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/calc_vc.svg)
+![calc_vc](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/calc_vc.svg?sanitize=true)
 
 From there, we can get the current:
 
-![alt text](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/calc_i.svg)
+![calc_i](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/calc_i.svg?sanitize=true)
 
 Now the power consumption of the LEDs and resistences:
 
-![alt text](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/calc_p.svg)
+![calc_p](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/calc_p.svg?sanitize=true)
 
 And finally the mean power estimation of the whole system.
 Each second, a different LED is turned on, and all the others are turned off. By the fifth second,
@@ -40,4 +40,4 @@ no LED is turned on.
 
 As such, the final power estimation is given by the following expression:
 
-![alt text](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/calc_p_final.svg)
+![calc_p_final](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/calc_p_final.svg?sanitize=true)
