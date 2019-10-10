@@ -16,18 +16,18 @@ void stepLedState() {
       digitalWrite(RED, HIGH);
       break;
     case 1:
+      digitalWrite(RED, LOW);
       digitalWrite(GREEN, HIGH);
       break;
     case 2:
+      digitalWrite(GREEN, LOW);
       digitalWrite(BLUE, HIGH);
       break;
     case 3:
+      digitalWrite(BLUE, LOW);
       digitalWrite(YELLOW, HIGH);
       break;
     case 4:
-      digitalWrite(RED, LOW);
-      digitalWrite(GREEN, LOW);
-      digitalWrite(BLUE, LOW);
       digitalWrite(YELLOW, LOW);
       break;
     default:
