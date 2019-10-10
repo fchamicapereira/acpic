@@ -38,6 +38,10 @@ Each second, a different LED is turned on, and all the others are turned off. By
 all the LEDs are turned off. As such, each LED is turned on 20% of the time, and 20% of the time
 no LED is turned on.
 
-As such, the final power estimation is given by the following expression:
+The final power estimation is given by the following expression:
 
 ![calc_p_final](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/calc_p_final.svg?sanitize=true)
+
+Simplifying:
+
+![calc_p_final](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/calc_p_final_simplified.svg?sanitize=true)
