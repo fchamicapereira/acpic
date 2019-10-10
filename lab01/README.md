@@ -25,7 +25,7 @@ Getting the voltage drop on each LED:
 
 ![calc_vc](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/calc_vc.svg?sanitize=true)
 
-From there, we can get the current:
+Getting the current from the voltage read on each resistence:
 
 ![calc_i](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/calc_i.svg?sanitize=true)
 
