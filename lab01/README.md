@@ -44,4 +44,4 @@ The final power estimation is given by the following expression:
 
 Simplifying:
 
-![calc_p_final](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/calc_p_final_simplified.svg?sanitize=true&id=2)
+![calc_p_final](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/calc_p_final_simplified.svg?sanitize=true&1570706542338)
