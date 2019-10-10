@@ -1,6 +1,6 @@
 ## Estimation of the power consumption of the interface
 
-## Definitions
+### Definitions
 
 Mean power estimation, resistence power and LED power:
 
@@ -18,7 +18,7 @@ Voltage:
 
 ![definitions_v](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/definitions_v.svg?sanitize=true)
 
-## Calculations
+### Calculations
 
 
 Getting the voltage drop on each LED:
