@@ -4,7 +4,7 @@
 
 Mean power estimation, resistence power and LED power:
 
-![alt text](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/definitions_p.svg)
+![definitions_p](/images/definitions_p.svg?raw=true&sanitize=true)
 
 Current:
 
