@@ -1,4 +1,4 @@
-## Intraface's power consumption estimate
+## Interface's power consumption estimation
 
 ### Definitions
 
