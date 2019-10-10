@@ -2,7 +2,7 @@
 
 ### Definitions
 
-Mean power estimation, resistence power and LED power:
+Mean power estimation, resistor power and LED power:
 
 ![definitions_p](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/definitions_p.svg?sanitize=true)
 
@@ -10,7 +10,7 @@ Current:
 
 ![definitions_i](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/definitions_i.svg?sanitize=true)
 
-Resistence:
+Resistor:
 
 ![definitions_r](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/definitions_r.svg?sanitize=true)
 
@@ -25,11 +25,11 @@ Getting the voltage drop on each LED:
 
 ![calc_vc](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/calc_vc.svg?sanitize=true)
 
-Getting the current from the voltage read on each resistence:
+Getting the current from the voltage read on each resistor:
 
 ![calc_i](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/calc_i.svg?sanitize=true)
 
-Now the power consumption of the LEDs and resistences:
+Now the power consumption of the LEDs and resistors:
 
 ![calc_p](https://raw.githubusercontent.com/fchamicapereira/acpic/master/lab01/images/calc_p.svg?sanitize=true)
 
