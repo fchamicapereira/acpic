@@ -12,11 +12,7 @@ const unsigned long MAX_PERIOD = 2000;   // 2 seconds
 
 const unsigned long CALIBRATION_DURATION = 5000; // 5 seconds
 
-// TODO: filter temperature noise
-
 int tempValue = 0;     // temperature sensor value
-int tempMin = 10000;   // minimum temperature sensor value
-int tempMax = -10000;  // maximum temperature sensor value
 
 int lightValue = 0;    // light sensor value
 int lightMin = 1023;   // minimum light sensor value
@@ -28,22 +24,6 @@ int potMax = 0;        // maximum potentiometer value
 
 int angle, lightIntensity;
 float temperature;
-
-void calibrateTemperature(){
-  Serial.println("Temperature calibration started");
-
-  unsigned long start = millis();
-  
-  while ((millis() - start) <= CALIBRATION_DURATION) {
-    tempValue = analogRead(TEMP_SENSOR);
-  
-    // record the minimum and maximum temperature sensor value
-    if (tempValue > tempMax) { tempMax = tempValue; }
-    if (tempValue < tempMin) { tempMin = tempValue; }
-  }
-
-  Serial.println("Temperature calibration finished");  
-}
 
 void calibrateLight(){
   Serial.println("Light calibration started");
@@ -92,7 +72,6 @@ void setup() {
    * of expected values for the readings taken during the loop.
   */
   
-  calibrateTemperature();
   calibrateLight();
   calibratePot();
 }
@@ -111,11 +90,10 @@ void loop() {
 
 void readTempSensor() {
 
+  // https://www.arduino.cc/en/uploads/Main/TemperatureSensor.pdf
+
   // read the sensors
-  tempValue = analogRead(TEMP_SENSOR);
- 
-  // in case the sensor value is outside the range seen during calibration
-  // tempValue = constrain(tempValue, tempMin, tempMax);  
+  tempValue = analogRead(TEMP_SENSOR); 
 
   // getting the voltage from the value read from the sensor
   float voltage = tempValue / 1024.0 * 5.0;
