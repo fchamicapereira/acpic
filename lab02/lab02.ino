@@ -12,6 +12,8 @@ const unsigned long MAX_PERIOD = 2000;   // 2 seconds
 
 const unsigned long CALIBRATION_DURATION = 5000; // 5 seconds
 
+// TODO: filter temperature noise
+
 int tempValue = 0;     // temperature sensor value
 int tempMin = 10000;   // minimum temperature sensor value
 int tempMax = -10000;  // maximum temperature sensor value
@@ -100,6 +102,8 @@ void loop() {
   readPotSensor();
   readLightSensor();
 
+  Serial.println();
+  
   handleTemperature();
   handleLight();
   handlePot();
@@ -137,23 +141,21 @@ void handleTemperature() {
 void readLightSensor() {
   
   lightValue = analogRead(LIGHT_SENSOR);
+  
   lightValue = map(lightValue, lightMin, lightMax, 0, 255);
   lightIntensity = constrain(lightValue, 0, 255);
   
-  Serial.print("Light intensity: "); Serial.print(lightIntensity); Serial.println(" light intensity"); 
+  Serial.print("Light intensity: "); Serial.print(lightIntensity);
   
 }
 
 void handleLight() {
 
-  static unsigned long delayBlink;
+  unsigned long delayBlink;
   
   // lightValue defines the intensity of the ligth (https://www.arduino.cc/en/Tutorial/PWM) 
-  if( (millis() - delayBlink) > 200 ) {
-    
-    delayBlink = millis();
-    analogWrite(RED, lightIntensity);
-  }
+  delayBlink = millis();
+  analogWrite(RED, 255 - lightIntensity);
 
 }
 
@@ -170,7 +172,7 @@ void readPotSensor(){
 
 void handlePot() {
 
-  static unsigned long delayBlink;  
+  static unsigned long delayBlink;
   
   unsigned long period = map(angle, 0, 180, MIN_PERIOD, MAX_PERIOD);
   unsigned long t = millis();
