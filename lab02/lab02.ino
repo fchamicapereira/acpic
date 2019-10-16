@@ -11,7 +11,7 @@ const unsigned long MIN_PERIOD = 200;    // 0.2 seconds
 const unsigned long MAX_PERIOD = 2000;   // 2 seconds
 
 const unsigned long CALIBRATION_DURATION = 5000; // 5 seconds
-const unsigned long TASK_SLICE = 200; // 200ms for each task
+const unsigned long TASK_SLICE = 50;             // 50ms for each task
 
 int tempValue = 0;     // temperature sensor value
 int tempMin = 10000;   // minimum temperature sensor value
@@ -27,19 +27,25 @@ int potMax = 0;        // maximum potentiometer value
 
 unsigned long period;
 
-unsigned long savedT; // start of the time slot of the task
-
 void runTask(void (*task)()) {
   
   // mark the beginning of the task execution
-  savedT = millis();
+  unsigned long start_time = millis();
 
   // get the time to end this task
-  unsigned long endT = savedT + TASK_SLICE;
+  unsigned long end_time = start_time + TASK_SLICE;
 
   // execute the task while it's its time to execute
-  while (millis() < endT) {
+  // TODO: change this
+  if (TASK_SLICE > 0) {
+    while (millis() < end_time) {
+      task();
+    } 
+  } else {
     task();
+    Serial.print("Task exec time: "); 
+    Serial.print(millis() - start_time);
+    Serial.println(" ms");
   }
 
 }
@@ -83,10 +89,6 @@ void calibratePot(){
   
   while ((millis() - start) <= CALIBRATION_DURATION) {
     potValue = analogRead(POT_SENSOR);
-  
-    // record the minimum and maximum light sensor value
-    if (lightValue > lightMax) { lightMax = lightValue; }
-    if (lightValue < lightMin) { lightMin = lightValue; }
 
     // record the minimum and maximum potentiometer value
     if (potValue > potMax) { potMax = potValue; }
@@ -199,5 +201,6 @@ float T(int value) {
 }
 
 float P(int value) {
-   return 0.01 * value - 0.2; 
+   // 0.01 * value - 0.2;
+   return map(value, 0, 180, MIN_PERIOD, MAX_PERIOD);
 }
