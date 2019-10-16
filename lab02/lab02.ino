@@ -6,12 +6,11 @@ const int TEMP_SENSOR = A0;
 const int LIGHT_SENSOR = A1;
 const int POT_SENSOR = A3;
 
-const int TEMP_THRESHOLD = 26;           // degrees celsius
+const int TEMP_THRESHOLD = 27;           // degrees celsius
 const unsigned long MIN_PERIOD = 200;    // 0.2 seconds
 const unsigned long MAX_PERIOD = 2000;   // 2 seconds
 
 const unsigned long CALIBRATION_DURATION = 5000; // 5 seconds
-const unsigned long TASK_SLICE = 50;             // 50ms for each task
 
 int tempValue = 0;     // temperature sensor value
 int tempMin = 10000;   // minimum temperature sensor value
@@ -25,30 +24,8 @@ int potValue = 0;      // potentiometer value
 int potMin = 1023;     // minimum potentiometer value
 int potMax = 0;        // maximum potentiometer value
 
-unsigned long period;
-
-void runTask(void (*task)()) {
-  
-  // mark the beginning of the task execution
-  unsigned long start_time = millis();
-
-  // get the time to end this task
-  unsigned long end_time = start_time + TASK_SLICE;
-
-  // execute the task while it's its time to execute
-  // TODO: change this
-  if (TASK_SLICE > 0) {
-    while (millis() < end_time) {
-      task();
-    } 
-  } else {
-    task();
-    Serial.print("Task exec time: "); 
-    Serial.print(millis() - start_time);
-    Serial.println(" ms");
-  }
-
-}
+int angle, lightIntensity;
+float temperature;
 
 void calibrateTemperature(){
   Serial.println("Temperature calibration started");
@@ -63,7 +40,7 @@ void calibrateTemperature(){
     if (tempValue < tempMin) { tempMin = tempValue; }
   }
 
-  Serial.println("Temperature calibration finnished");  
+  Serial.println("Temperature calibration finished");  
 }
 
 void calibrateLight(){
@@ -79,7 +56,7 @@ void calibrateLight(){
     if (lightValue < lightMin) { lightMin = lightValue; }
   }
 
-  Serial.println("Light calibration finnished");
+  Serial.println("Light calibration finished");
 }
 
 void calibratePot(){
@@ -95,7 +72,7 @@ void calibratePot(){
     if (potValue < potMin) { potMin = potValue; }
   }
 
-  Serial.println("Pot calibration finnished");  
+  Serial.println("Pot calibration finished");  
 }
 
 void setup() {
@@ -107,7 +84,7 @@ void setup() {
     
   /*
    * Calibration techine:
-   * The board takes sensor readings for five seconds during the startup, and
+   * The board takes sensor readings for 15 seconds during the startup, and
    * tracks the highest and lowest values it gets. These sensor readings during
    * the first five seconds of the sketch execution define the minimum and maximum
    * of expected values for the readings taken during the loop.
@@ -119,88 +96,92 @@ void setup() {
 }
 
 void loop() {
-  runTask(controlTemperature); 
-  runTask(controlRotationAngle);
-  runTask(controlLightItensity);
+  readTempSensor();
+  readPotSensor();
+  readLightSensor();
+
+  handleTemperature();
+  handleLight();
+  handlePot();
 }
 
-
-void controlTemperature(){
-  float temp;
+void readTempSensor() {
 
   // read the sensors
   tempValue = analogRead(TEMP_SENSOR);
  
   // in case the sensor value is outside the range seen during calibration
-  tempValue = constrain(tempValue, tempMin, tempMax);  
-  temp = T(tempValue);
+  // tempValue = constrain(tempValue, tempMin, tempMax);  
+
+  // getting the voltage from the value read from the sensor
+  float voltage = tempValue / 1024.0 * 5.0;
   
-  Serial.print("Temperature: "); Serial.print(temp); Serial.println(" ºC");
-    
-  if (temp > TEMP_THRESHOLD) {
+  // converting from 10 mv per degree with 500 mV offset
+  temperature = (voltage - 0.5) * 100;
+
+  Serial.print("Temperature: "); Serial.print(temperature); Serial.println(" ºC");
+
+}
+
+
+void handleTemperature() {
+   
+  if (temperature > TEMP_THRESHOLD) {
     digitalWrite(YELLOW, HIGH);
-  } else {
+  } else if (temperature < TEMP_THRESHOLD) {
     digitalWrite(YELLOW, LOW);
   }
   
 }
 
-
-void controlLightItensity(){
-
-  static unsigned long delayBlink;
+void readLightSensor() {
   
   lightValue = analogRead(LIGHT_SENSOR);
   lightValue = map(lightValue, lightMin, lightMax, 0, 255);
-  lightValue = constrain(lightValue, 0, 255);
+  lightIntensity = constrain(lightValue, 0, 255);
   
-  Serial.print("Light intensity: "); Serial.print(lightValue); Serial.println(" light intensity");
+  Serial.print("Light intensity: "); Serial.print(lightIntensity); Serial.println(" light intensity"); 
+  
+}
 
-  //lightValue defines the intensity of the ligth (https://www.arduino.cc/en/Tutorial/PWM) 
-  if((millis() - delayBlink) == 200 )
-  {
+void handleLight() {
+
+  static unsigned long delayBlink;
+  
+  // lightValue defines the intensity of the ligth (https://www.arduino.cc/en/Tutorial/PWM) 
+  if( (millis() - delayBlink) > 200 ) {
     
     delayBlink = millis();
-    analogWrite(RED, lightValue);
+    analogWrite(RED, lightIntensity);
   }
- 
+
+}
+
+void readPotSensor(){
+
+  potValue = analogRead(POT_SENSOR);
+  angle = map(potValue, potMin, potMax, 0, 180);
+
+  angle = constrain(angle, 0, 180);
+  Serial.print("Angle: "); Serial.print(angle); Serial.println(" º");
+
 }
 
 
-void controlRotationAngle(){
+void handlePot() {
 
   static unsigned long delayBlink;  
-  float deg;
-
-  potValue = analogRead(POT_SENSOR);
-  deg = map(potValue, potMin, potMax, 0, 180);
-
-  deg = constrain(deg, 0, 180);
-  Serial.print("Degrees: "); Serial.print(deg); Serial.println(" º");
-
-  period = P(deg);
   
-   if ( (millis() - delayBlink) < period ) {
+  unsigned long period = map(angle, 0, 180, MIN_PERIOD, MAX_PERIOD);
+  unsigned long t = millis();
+  unsigned long dt = t - delayBlink;
+  
+   if ( dt < (period / 2) ) {
       digitalWrite(GREEN, HIGH);
-  } else {
+  } else if ( (dt > (period / 2)) && (dt < period) ){
       digitalWrite(GREEN, LOW);
+  } else {
       delayBlink = millis();
   }
 
-}
-
-float T(int value) {
-  
-  // getting the voltage from the value read from the sensor
-  float voltage = value / 1024.0 * 5.0;
-  
-  // converting from 10 mv per degree with 500 mV offset
-  float temperature = (voltage - 0.5) * 100;
-
-  return temperature; 
-}
-
-float P(int value) {
-   // 0.01 * value - 0.2;
-   return map(value, 0, 180, MIN_PERIOD, MAX_PERIOD);
 }
