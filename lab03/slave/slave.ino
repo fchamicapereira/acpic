@@ -91,10 +91,13 @@ void handleLight() {
 
 }
 
-
 void handlePot() {
 
   static unsigned long delayBlink;
+
+  Serial.print("Angle stored = ");
+  Serial.println(angle);
+  Serial.println(" º");
 
   unsigned long period = map(angle, 0, 180, MIN_PERIOD, MAX_PERIOD);
   unsigned long t = millis();
