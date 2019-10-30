@@ -16,12 +16,19 @@ void setup() {
 void loop() {
 }
 
+void ok() {
+  Wire.write(1);
+  Serial.println("OK");
+}
+
 void receiveEvent(int howMany) {
+  Serial.println("Receiving...");
+  
   while (1 < Wire.available()) {
     received = Wire.read();
   }
   
-  int x = Wire.read();
+  ok();
 }
 
 void requestEvent() {
