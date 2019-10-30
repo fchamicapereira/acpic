@@ -6,13 +6,11 @@ const int TEMP_SENSOR = A0;
 const int LIGHT_SENSOR = A1;
 const int POT_SENSOR = A3;
 
-const unsigned long CALIBRATION_DURATION = 5000; // 5 seconds
-
 int tempValue = 0;     // temperature sensor value
+int tempErr = 0;
 
 int lightValue = 0;    // light sensor value
-int lightMin = 1023;   // minimum light sensor value
-int lightMax = 0;      // maximum light sensor value
+int lightMax = 1023;      // maximum light sensor value
 
 int potValue = 0;      // potentiometer value
 int potMin = 1023;     // minimum potentiometer value
@@ -22,6 +20,9 @@ int OP_LIGHT = 0;
 int OP_TEMP = 1;
 int OP_POT = 2;
 
+const unsigned long CALIBRATION_DURATION = 5000; // 5 seconds
+const unsigned long CALIBRATION_ERROR_VARIATION = 3000; // 1 second
+
 void send(int op, int value) {
   Wire.beginTransmission(SLAVE_ADDR);
   Wire.write(op);
@@ -29,7 +30,7 @@ void send(int op, int value) {
   Wire.endTransmission();
 }
 
-void calibrateLight(){
+void calibrateLight() {
   Serial.println("Light calibration started");
 
   unsigned long start = millis();
@@ -38,14 +39,13 @@ void calibrateLight(){
     lightValue = analogRead(LIGHT_SENSOR);
   
     // record the minimum and maximum light sensor value
-    if (lightValue > lightMax) { lightMax = lightValue; }
-    if (lightValue < lightMin) { lightMin = lightValue; }
+    if (lightValue < lightMax) { lightMax = lightValue; }
   }
 
   Serial.println("Light calibration finished");
 }
 
-void calibratePot(){
+void calibratePot() {
   Serial.println("Pot calibration started");
 
   unsigned long start = millis();
@@ -61,6 +61,39 @@ void calibratePot(){
   Serial.println("Pot calibration finished");  
 }
 
+void calibrateTemp() {
+
+  Serial.println("Temp calibration started");
+  
+  unsigned long start = millis();
+  int tempMin = 1024;
+  int tempMax = 0;
+
+  while ((millis() - start) <= CALIBRATION_ERROR_VARIATION) {
+    tempValue = analogRead(TEMP_SENSOR);
+
+    // record the minimum and maximum potentiometer value
+    if (tempValue > tempMax) { tempMax = tempValue; }
+    if (tempValue < tempMin) { tempMin = tempValue; }
+  }
+
+  tempErr = tempMax - tempMin;
+
+  float voltage;
+  int temperature;
+  
+  Serial.println("Temp calibration finished");
+  Serial.print("Temp min ");
+  voltage = (tempMin / 1024.0 * 5.0);
+  temperature = (voltage - 0.5) * 100;
+  Serial.println(temperature);
+
+  Serial.print("Temp max ");
+  voltage = (tempMax / 1024.0 * 5.0);
+  temperature = (voltage - 0.5) * 100;
+  Serial.println(temperature);
+}
+
 void setup() {   
   Wire.begin();
   
@@ -73,13 +106,14 @@ void setup() {
    * the first five seconds of the sketch execution define the minimum and maximum
    * of expected values for the readings taken during the loop.
   */
-  
+
   calibrateLight();
   calibratePot();
+  calibrateTemp();
 }
 
 void loop() {
-  // readTempSensor();
+  readTempSensor();
   readPotSensor();
   readLightSensor();
 }
@@ -105,10 +139,10 @@ void readLightSensor() {
   
   lightValue = analogRead(LIGHT_SENSOR);
   
-  lightValue = map(lightValue, lightMin, lightMax, 0, 255);
+  lightValue = map(lightValue, 0, lightMax, 0, 255);
   int lightIntensity = constrain(lightValue, 0, 255);
   
-  Serial.print("Light intensity: "); Serial.print(lightIntensity);
+  Serial.print("Light intensity: "); Serial.println(lightIntensity);
   send(OP_LIGHT, lightIntensity);
 }
 

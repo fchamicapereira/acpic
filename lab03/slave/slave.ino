@@ -80,6 +80,11 @@ void loop() {
   }
 
   blink();
+
+  if (fTaskTemp) {
+    fTaskTemp = false;
+    handleTemperature();
+  }
 }
 
 
