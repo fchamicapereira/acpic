@@ -13,6 +13,7 @@ const unsigned long MAX_PERIOD = 2000;   // 2 seconds
 const unsigned long CALIBRATION_DURATION = 5000; // 5 seconds
 
 int angle, lightIntensity, temperature;
+unsigned long period;
 
 int OP_LIGHT = 0;
 int OP_TEMP = 1;
@@ -66,8 +67,10 @@ void setup() {
 void loop() {
   if (fTaskPot) {
     fTaskPot = false;
-    handlePot;
+    handlePot();
   }
+
+  blink();
 }
 
 
@@ -93,13 +96,16 @@ void handleLight() {
 
 void handlePot() {
 
-  static unsigned long delayBlink;
-
   Serial.print("Angle stored = ");
   Serial.println(angle);
   Serial.println(" º");
 
-  unsigned long period = map(angle, 0, 180, MIN_PERIOD, MAX_PERIOD);
+  period = map(angle, 0, 180, MIN_PERIOD, MAX_PERIOD);
+}
+
+void blink() {
+  static unsigned long delayBlink;
+
   unsigned long t = millis();
   unsigned long dt = t - delayBlink;
 
@@ -110,5 +116,4 @@ void handlePot() {
   } else {
     delayBlink = millis();
   }
-
 }

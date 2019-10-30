@@ -61,7 +61,7 @@ void calibratePot(){
   Serial.println("Pot calibration finished");  
 }
 
-void setup() {  
+void setup() {   
   Wire.begin();
   
   Serial.begin(9600); // debug purposes
@@ -79,11 +79,9 @@ void setup() {
 }
 
 void loop() {
-  readTempSensor();
+  // readTempSensor();
   readPotSensor();
-  readLightSensor();
-
-  Serial.begin(9600); // debug purposes
+  // readLightSensor();
 }
 
 void readTempSensor() {
