@@ -83,15 +83,6 @@ void calibrateTemp() {
   int temperature;
   
   Serial.println("Temp calibration finished");
-  Serial.print("Temp min ");
-  voltage = (tempMin / 1024.0 * 5.0);
-  temperature = (voltage - 0.5) * 100;
-  Serial.println(temperature);
-
-  Serial.print("Temp max ");
-  voltage = (tempMax / 1024.0 * 5.0);
-  temperature = (voltage - 0.5) * 100;
-  Serial.println(temperature);
 }
 
 void setup() {   
@@ -120,10 +111,16 @@ void loop() {
 
 void readTempSensor() {
 
+  static int prevTemp;
+
   // https://www.arduino.cc/en/uploads/Main/TemperatureSensor.pdf
 
   // read the sensors
-  tempValue = analogRead(TEMP_SENSOR); 
+  tempValue = analogRead(TEMP_SENSOR);
+
+  if (abs(tempValue - prevTemp) <= tempErr) {
+    tempValue = prevTemp;
+  }
 
   // getting the voltage from the value read from the sensor
   float voltage = tempValue / 1024.0 * 5.0;
@@ -133,6 +130,8 @@ void readTempSensor() {
 
   Serial.print("Temperature: "); Serial.print(temperature); Serial.println(" ºC");
   send(OP_TEMP, temperature);
+
+  prevTemp = tempValue;
 }
 
 void readLightSensor() {

@@ -2,6 +2,7 @@
 
 #define SLAVE_ADDR 8
 
+const int YELLOW_CHECK = 5;
 const int YELLOW = 4;
 const int RED = 3;
 const int GREEN = 2;
@@ -57,6 +58,7 @@ void setup() {
   pinMode(RED, OUTPUT);
   pinMode(GREEN, OUTPUT);
   pinMode(YELLOW, OUTPUT);
+  pinMode(YELLOW_CHECK, INPUT);
 
   Wire.begin(SLAVE_ADDR);
   Wire.onReceive(receiveEvent);
@@ -123,6 +125,9 @@ void blink() {
 
   if ( dt < (period / 2) ) {
     digitalWrite(GREEN, HIGH);
+    if (digitalRead(inPin) < HIGH) {
+      Serial.println("BROKEN LED");
+    }
   } else if ( (dt > (period / 2)) && (dt < period) ) {
     digitalWrite(GREEN, LOW);
   } else {
