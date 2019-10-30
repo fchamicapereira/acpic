@@ -41,7 +41,7 @@ void latency() {
 }
 
 void bandwidth() {
-  int res = 0;
+  int received = 0;
   int start = millis();
 
   Wire.beginTransmission(SLAVE_ADDR);
@@ -55,20 +55,23 @@ void bandwidth() {
   while (Wire.available() == 0) { delay(10); }
 
   while (Wire.available()) {
-    res = Wire.read();
-    Serial.println(res);
+    received = Wire.read();
   }
 
   int end = millis();
 
-  if (res) { Serial.println("OK"); }
+  if (received) { Serial.println("OK"); }
   else { Serial.println("NOK"); }
   
-  Serial.print("time = ");
+  Serial.print("time     = ");
   Serial.print(end - start);
   Serial.println(" ms");
 
-  int speed = 0.01 * SIZE / (0.001 * (end - start));
+  Serial.print("received = ");
+  Serial.print(received);
+  Serial.println(" bytes");
+
+  int speed = 0.01 * received / (0.001 * (end - start));
 
   Serial.print(speed); 
   Serial.println(" KB/s");

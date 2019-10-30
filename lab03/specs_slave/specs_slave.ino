@@ -2,7 +2,6 @@
 
 #define SLAVE_ADDR 8
 
-char received;
 int size;
 
 void setup() {
@@ -18,7 +17,8 @@ void loop() {
 }
 
 void receiveEvent(int howMany) {
-  Serial.println("Receiving...");
+  Serial.print("Receiving ");
+  Serial.println(howMany);
 
   size = 0;
   while (1 < Wire.available()) {
