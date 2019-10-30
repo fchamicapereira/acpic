@@ -125,7 +125,7 @@ void blink() {
 
   if ( dt < (period / 2) ) {
     digitalWrite(GREEN, HIGH);
-    if (digitalRead(inPin) < HIGH) {
+    if (digitalRead(YELLOW_CHECK) < HIGH) {
       Serial.println("BROKEN LED");
     }
   } else if ( (dt > (period / 2)) && (dt < period) ) {
