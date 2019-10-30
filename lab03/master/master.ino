@@ -74,14 +74,14 @@ void setup() {
    * of expected values for the readings taken during the loop.
   */
   
-  // calibrateLight();
+  calibrateLight();
   calibratePot();
 }
 
 void loop() {
   // readTempSensor();
   readPotSensor();
-  // readLightSensor();
+  readLightSensor();
 }
 
 void readTempSensor() {

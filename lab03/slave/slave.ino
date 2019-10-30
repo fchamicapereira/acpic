@@ -73,6 +73,13 @@ void loop() {
   }
 
   blink();
+
+  if (fTaskLight) {
+    fTaskPot = false;
+    handleLight();
+  }
+
+  blink();
 }
 
 
@@ -87,25 +94,19 @@ void handleTemperature() {
 }
 
 void handleLight() {
-
-  unsigned long delayBlink;
-
-  // lightValue defines the intensity of the ligth (https://www.arduino.cc/en/Tutorial/PWM)
-  delayBlink = millis();
   analogWrite(RED, 255 - lightIntensity);
-
 }
 
 void handlePot() {
 
   Serial.print("Angle stored = ");
-  Serial.println(angle);
+  Serial.print(angle);
   Serial.println(" º");
 
   period = map(angle, 0, 180, MIN_PERIOD, MAX_PERIOD);
 
   Serial.print("period = ");
-  Serial.println(period);
+  Serial.print(period);
   Serial.println(" ms");
 }
 
