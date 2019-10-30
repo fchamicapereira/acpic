@@ -75,7 +75,7 @@ void loop() {
   blink();
 
   if (fTaskLight) {
-    fTaskPot = false;
+    fTaskLight = false;
     handleLight();
   }
 
