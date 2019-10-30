@@ -65,6 +65,8 @@ void setup() {
 }
 
 void loop() {
+  blink();
+  
   if (fTaskPot) {
     fTaskPot = false;
     handlePot();
@@ -101,6 +103,10 @@ void handlePot() {
   Serial.println(" º");
 
   period = map(angle, 0, 180, MIN_PERIOD, MAX_PERIOD);
+
+  Serial.print("period = ");
+  Serial.println(period);
+  Serial.println(" ms");
 }
 
 void blink() {
