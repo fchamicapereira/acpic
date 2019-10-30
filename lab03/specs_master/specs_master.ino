@@ -1,7 +1,8 @@
 #include <Wire.h>
 
 #define SLAVE_ADDR 8
-#define SIZE 10000
+#define BUFFER_SIZE 32
+#define SIZE BUFFER_SIZE * 100
 
 void setup() {  
   Wire.begin();
@@ -12,7 +13,7 @@ void setup() {
 void loop() {
   // latency();
   bandwidth();
-  delay(100);
+  delay(5000);
 }
 
 void latency() {
@@ -40,20 +41,19 @@ void latency() {
 }
 
 void bandwidth() {
+  int res = 0;
   int start = millis();
 
   Wire.beginTransmission(SLAVE_ADDR);
-  for (int i = 0; i < SIZE; i++) {
-    Wire.write('A'); 
+  for (int i = 0; i < SIZE; i += BUFFER_SIZE) {
+    Wire.write('A' * BUFFER_SIZE); 
   }
   Wire.endTransmission();
-
-  int res;  
 
   Wire.requestFrom(SLAVE_ADDR, 1);
 
   while (Wire.available() == 0) { delay(10); }
-  
+
   while (Wire.available()) {
     res = Wire.read();
     Serial.println(res);
@@ -68,6 +68,8 @@ void bandwidth() {
   Serial.print(end - start);
   Serial.println(" ms");
 
-  Serial.print((float) SIZE / (0.001 * (end - start))); 
-  Serial.println(" bytes/s");
+  int speed = 0.01 * SIZE / (0.001 * (end - start));
+
+  Serial.print(speed); 
+  Serial.println(" KB/s");
 }

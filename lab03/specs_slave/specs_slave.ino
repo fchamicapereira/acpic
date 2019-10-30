@@ -28,7 +28,8 @@ void receiveEvent(int howMany) {
 }
 
 void requestEvent() {
-  Wire.write(1);
+  Wire.write(size);
+  
   Serial.print("OK (");
   Serial.print(size);
   Serial.println(" bytes received)");
