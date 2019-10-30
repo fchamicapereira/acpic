@@ -2,10 +2,11 @@
 
 #define SLAVE_ADDR 8
 
-const int YELLOW_CHECK = 5;
 const int YELLOW = 4;
 const int RED = 3;
 const int GREEN = 2;
+
+const int GREEN_CHECK = 5;
 
 const int TEMP_THRESHOLD = 27;           // degrees celsius
 const unsigned long MIN_PERIOD = 200;    // 0.2 seconds
@@ -30,13 +31,9 @@ void receiveEvent(int howMany) {
   while (Wire.available() == 0) {}
 
   int op = Wire.read();
-  Serial.print("Operation");
-  Serial.println(op);
   
   while (Wire.available()) {
     value = Wire.read();
-    Serial.print("received ");
-    Serial.println(value);
   }
 
   if (op == OP_LIGHT) {
@@ -58,7 +55,7 @@ void setup() {
   pinMode(RED, OUTPUT);
   pinMode(GREEN, OUTPUT);
   pinMode(YELLOW, OUTPUT);
-  pinMode(YELLOW_CHECK, INPUT);
+  pinMode(GREEN_CHECK, INPUT);
 
   Wire.begin(SLAVE_ADDR);
   Wire.onReceive(receiveEvent);
@@ -105,16 +102,7 @@ void handleLight() {
 }
 
 void handlePot() {
-
-  Serial.print("Angle stored = ");
-  Serial.print(angle);
-  Serial.println(" º");
-
   period = map(angle, 0, 180, MIN_PERIOD, MAX_PERIOD);
-
-  Serial.print("period = ");
-  Serial.print(period);
-  Serial.println(" ms");
 }
 
 void blink() {
@@ -125,7 +113,7 @@ void blink() {
 
   if ( dt < (period / 2) ) {
     digitalWrite(GREEN, HIGH);
-    if (digitalRead(YELLOW_CHECK) < HIGH) {
+    if (digitalRead(GREEN_CHECK) < HIGH) {
       Serial.println("BROKEN LED");
     }
   } else if ( (dt > (period / 2)) && (dt < period) ) {
