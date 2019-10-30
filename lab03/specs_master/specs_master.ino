@@ -1,8 +1,7 @@
 #include <Wire.h>
 
 #define SLAVE_ADDR 8
-#define BUFFER_SIZE 32
-#define SIZE BUFFER_SIZE * 100
+#define SIZE 32
 
 void setup() {  
   Wire.begin();
@@ -11,29 +10,36 @@ void setup() {
 }
 
 void loop() {
-  // latency();
+  latency();
+  delay(5000);
   bandwidth();
   delay(5000);
 }
 
 void latency() {
+  Serial.println("*** Latency ***");
+  
   Wire.beginTransmission(SLAVE_ADDR);
-  Wire.write('a');
+  for (int i = 0; i < 32; i++) {
+    Wire.write('a'); 
+  }
   Wire.endTransmission();
 
   int start = millis();
-  char c;
+  int received;
   
   Wire.requestFrom(SLAVE_ADDR, 1);
 
+  while (Wire.available() == 0) {}
+  int end = millis();
+  
   while (Wire.available()) {
-    c = Wire.read();
+    received = Wire.read();
   }
 
-  int end = millis();
-
   Serial.print("received ");
-  Serial.println(c);
+  Serial.print(received);
+  Serial.println(" bytes");
   
   Serial.print("time = ");
   Serial.print(end - start);
@@ -41,12 +47,14 @@ void latency() {
 }
 
 void bandwidth() {
+  Serial.println("*** Bandwidth***");
+  
   int received = 0;
   int start = millis();
 
   Wire.beginTransmission(SLAVE_ADDR);
-  for (int i = 0; i < SIZE; i += BUFFER_SIZE) {
-    Wire.write('A' * BUFFER_SIZE); 
+  for (int i = 0; i < SIZE; i++) {
+    Wire.write('A'); 
   }
   Wire.endTransmission();
 
@@ -73,6 +81,7 @@ void bandwidth() {
 
   int speed = 0.01 * received / (0.001 * (end - start));
 
+  Serial.print("speed    = ");
   Serial.print(speed); 
   Serial.println(" KB/s");
 }

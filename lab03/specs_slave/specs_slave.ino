@@ -2,6 +2,8 @@
 
 #define SLAVE_ADDR 8
 
+enum Operation { latency, bandwidth };
+
 int size;
 
 void setup() {
@@ -21,9 +23,9 @@ void receiveEvent(int howMany) {
   Serial.println(howMany);
 
   size = 0;
-  while (1 < Wire.available()) {
-    Wire.read();
+  while (Wire.available()) {
     size++;
+    Wire.read();
   }
 }
 
