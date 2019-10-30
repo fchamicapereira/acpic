@@ -10,7 +10,8 @@ void setup() {
 }
 
 void loop() {
-  latency();
+  // latency();
+  bandwidth();
 }
 
 void latency() {
