@@ -1,3 +1,7 @@
+#include <Wire.h>
+
+#define SLAVE_ADDR 8;
+
 const int YELLOW = 4;
 const int RED = 3;
 const int GREEN = 2;
@@ -15,7 +19,9 @@ void setup() {
   pinMode(RED, OUTPUT);
   pinMode(GREEN, OUTPUT);
   pinMode(YELLOW, OUTPUT);
-  
+
+  Wire.begin(SLAVE_ADDR);
+
   Serial.begin(9600); // debug purposes
 }
 
@@ -24,20 +30,20 @@ void loop() {
 
 
 void handleTemperature() {
-   
+
   if (temperature > TEMP_THRESHOLD) {
     digitalWrite(YELLOW, HIGH);
   } else if (temperature < TEMP_THRESHOLD) {
     digitalWrite(YELLOW, LOW);
   }
-  
+
 }
 
 void handleLight() {
 
   unsigned long delayBlink;
-  
-  // lightValue defines the intensity of the ligth (https://www.arduino.cc/en/Tutorial/PWM) 
+
+  // lightValue defines the intensity of the ligth (https://www.arduino.cc/en/Tutorial/PWM)
   delayBlink = millis();
   analogWrite(RED, 255 - lightIntensity);
 
@@ -47,17 +53,17 @@ void handleLight() {
 void handlePot() {
 
   static unsigned long delayBlink;
-  
+
   unsigned long period = map(angle, 0, 180, MIN_PERIOD, MAX_PERIOD);
   unsigned long t = millis();
   unsigned long dt = t - delayBlink;
-  
-   if ( dt < (period / 2) ) {
-      digitalWrite(GREEN, HIGH);
-  } else if ( (dt > (period / 2)) && (dt < period) ){
-      digitalWrite(GREEN, LOW);
+
+  if ( dt < (period / 2) ) {
+    digitalWrite(GREEN, HIGH);
+  } else if ( (dt > (period / 2)) && (dt < period) ) {
+    digitalWrite(GREEN, LOW);
   } else {
-      delayBlink = millis();
+    delayBlink = millis();
   }
 
 }

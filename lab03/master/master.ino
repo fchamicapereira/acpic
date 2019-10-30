@@ -1,3 +1,7 @@
+#include <Wire.h>
+
+#define SLAVE_ADDR 8;
+
 const int TEMP_SENSOR = A0;
 const int LIGHT_SENSOR = A1;
 const int POT_SENSOR = A3;
@@ -50,6 +54,8 @@ void calibratePot(){
 }
 
 void setup() {  
+  Wire.begin();
+  
   Serial.begin(9600); // debug purposes
     
   /*
@@ -68,6 +74,8 @@ void loop() {
   readTempSensor();
   readPotSensor();
   readLightSensor();
+
+  Serial.begin(9600); // debug purposes
 }
 
 void readTempSensor() {
