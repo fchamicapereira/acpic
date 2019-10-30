@@ -1,7 +1,7 @@
 #include <Wire.h>
 
 #define SLAVE_ADDR 8
-#define SIZE 1000
+#define SIZE 10000
 
 void setup() {  
   Wire.begin();
@@ -12,6 +12,7 @@ void setup() {
 void loop() {
   // latency();
   bandwidth();
+  delay(100);
 }
 
 void latency() {
@@ -51,8 +52,11 @@ void bandwidth() {
 
   Wire.requestFrom(SLAVE_ADDR, 1);
 
+  while (Wire.available() == 0) { delay(10); }
+  
   while (Wire.available()) {
     res = Wire.read();
+    Serial.println(res);
   }
 
   int end = millis();

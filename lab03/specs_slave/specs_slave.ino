@@ -17,25 +17,19 @@ void setup() {
 void loop() {
 }
 
-void ok() {
-  Wire.write(1);
-  Serial.print("OK (");
-  Serial.print(size);
-  Serial.println(" bytes received)");
-}
-
 void receiveEvent(int howMany) {
   Serial.println("Receiving...");
 
   size = 0;
   while (1 < Wire.available()) {
-    received = Wire.read();
+    Wire.read();
     size++;
   }
-  
-  ok();
 }
 
 void requestEvent() {
-  Wire.write(received);
+  Wire.write(1);
+  Serial.print("OK (");
+  Serial.print(size);
+  Serial.println(" bytes received)");
 }
