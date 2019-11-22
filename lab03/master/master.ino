@@ -31,7 +31,8 @@ void send(int op, int value) {
 }
 
 void calibrateLight() {
-  Serial.println("Light calibration started");
+  Serial.println();
+  Serial.print("Light calibration started... ");
 
   unsigned long start = millis();
   
@@ -42,11 +43,11 @@ void calibrateLight() {
     if (lightValue < lightMax) { lightMax = lightValue; }
   }
 
-  Serial.println("Light calibration finished");
+  Serial.println("done");
 }
 
 void calibratePot() {
-  Serial.println("Pot calibration started");
+  Serial.print("Pot calibration started... ");
 
   unsigned long start = millis();
   
@@ -58,12 +59,12 @@ void calibratePot() {
     if (potValue < potMin) { potMin = potValue; }
   }
 
-  Serial.println("Pot calibration finished");  
+  Serial.println("done");  
 }
 
 void calibrateTemp() {
 
-  Serial.println("Temp calibration started");
+  Serial.print("Temp calibration started... ");
   
   unsigned long start = millis();
   int tempMin = 1024;
@@ -78,11 +79,8 @@ void calibrateTemp() {
   }
 
   tempErr = tempMax - tempMin;
-
-  float voltage;
-  int temperature;
   
-  Serial.println("Temp calibration finished");
+  Serial.println("done");
 }
 
 void setup() {   
@@ -98,15 +96,21 @@ void setup() {
    * of expected values for the readings taken during the loop.
   */
 
+  Serial.println();
   calibrateLight();
   calibratePot();
   calibrateTemp();
+  Serial.println();
 }
 
 void loop() {
+  Serial.println();
+  
   readTempSensor();
   readPotSensor();
   readLightSensor();
+  
+  Serial.println();
 }
 
 void readTempSensor() {
@@ -123,7 +127,7 @@ void readTempSensor() {
   }
 
   // getting the voltage from the value read from the sensor
-  float voltage = tempValue / 1024.0 * 5.0;
+  float voltage = (float) tempValue / 1024.0 * 5.0;
   
   // converting from 10 mv per degree with 500 mV offset
   int temperature = (voltage - 0.5) * 100;
@@ -138,7 +142,7 @@ void readLightSensor() {
   
   lightValue = analogRead(LIGHT_SENSOR);
   
-  lightValue = map(lightValue, 0, lightMax, 0, 255);
+  lightValue = map(lightValue, 0, 255, 0, 255);
   int lightIntensity = constrain(lightValue, 0, 255);
   
   Serial.print("Light intensity: "); Serial.println(lightIntensity);
