@@ -6,13 +6,13 @@
  *  
  * * * * * * * * * * * * * */
 
-#define MAX_X 2
-#define MAX_Y 2
+#define MAX_X 0
+#define MAX_Y 1
 
 byte x = 0;
 byte y = 0;
 
-byte s = 1;
+byte s = 0;
 byte w = 1;
 
 /* * * * * * * * * * * * * *
@@ -275,9 +275,6 @@ void normal1Task() {
       NORMAL1_TASK_DUTY_CYCLE_MIN, NORMAL1_TASK_DUTY_CYCLE_MAX);
   else duty_cycle = 0.5;
 
-  Serial.print("Duty Cycle ");
-  Serial.print(duty_cycle);
-
   CARS[SN] = 0; // reset car counter
   CARS[WE] = 0; // reset car counter
 }
@@ -296,6 +293,13 @@ void normal2Task() {
 
   if (millis() - epoch_counter > EPOCH_UNIT) {
     epoch++; epoch_counter = millis();
+  }
+
+  if (pending_adjustment.active) {
+    Serial.print(pending_adjustment.t);
+    Serial.print(" ");
+    Serial.println(epoch);
+    // Serial.println(abs(pending_adjustment.t - epoch) / 10);
   }
   
   if (dt < NORMAL1_TASK_PERIOD * duty_cycle - TRANSITION_TIME) {
@@ -380,9 +384,6 @@ void normal2Task() {
       NORMAL1_TASK_DUTY_CYCLE_MIN, NORMAL1_TASK_DUTY_CYCLE_MAX);
   else duty_cycle = 0.5;
 
-  Serial.print("Duty Cycle ");
-  Serial.print(duty_cycle);
-
   CARS[SN] = 0; // reset car counter
   CARS[WE] = 0; // reset car counter
 
@@ -418,6 +419,8 @@ void receiveFrame(int howMany) {
   while (Wire.available() > 0) {
     Wire.readBytes((byte*)&f, sizeof(frame));
 
+    Serial.println("RECEIVED");
+
     // grab the least significant 4 bits
     dst_x = f.dst & 15;
     
@@ -439,6 +442,8 @@ void receiveFrame(int howMany) {
 
     sender_max_flow = max(max(max(f.cars.n, f.cars.s), f.cars.e), f.cars.w);
     local_max_flow = max(CARS[SN], CARS[WE]);
+
+    if (sender_max_flow == 0 || local_max_flow == 0) return;
 
     // sender is further north
     // max traffic flow only relevant if comming from the north
@@ -488,6 +493,8 @@ void broadcast(unsigned long epoch, byte action) {
 
 void send(unsigned long epoch, byte action, byte dst_x, byte dst_y) {
   while (Wire.available()) { delay(10); }
+
+  Serial.println("SENDING");
   
   frame f;
   
