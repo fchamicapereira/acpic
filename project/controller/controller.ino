@@ -9,6 +9,8 @@
 #define YELLOW 1
 #define RED 2
 
+#define TRANSITION_PERCENTAGE 0.1 // 10% of duty cycle
+
 #define INITIAL_TASK_DURATION 6000 // 6 seconds
 #define INITIAL_TASK_PERIOD 2000 // 2 seconds
 
@@ -39,32 +41,55 @@ typedef struct {
 
 // south-north and west-east traffic lights
 // green, yellow and red
-const int TL[N_TRAFFIC_LIGHTS][3] = { { 0, 1, 2 }, { 3, 4, 5 } };
+const int TL[N_TRAFFIC_LIGHTS][3] = { { 2, 3, 4 }, { 5, 6, 7 } };
+const int CHECKER[N_TRAFFIC_LIGHTS][3] = { { -1, -1, 8 }, { -1, -1, 9 } };
 
 const int LD_SN = 12;
 const int LD_WE = 13;
 
 state tlState = INITIAL;
 
-// traffic lights' task
-void tlTask() {
-  static unsigned long delay;
-  unsigned long dt = millis() - delay;
+bool checkMalfunction(int tl, int color, int expected) {
+  if (CHECKER[tl][color] == -1) return true;
+
+  int current = digitalRead(CHECKER[tl][color]);
+
+  Serial.print("Check tl ");
+  Serial.print(tl);
+  Serial.print(" color ");
+  Serial.print(color);
+  Serial.print(" current ");
+  Serial.print(current);
+  Serial.print(" expected ");
+  Serial.print(expected);
+  Serial.print(" equal ");
+  Serial.print(current == expected);
+  Serial.println();
   
+  if (current != expected) tlState = STANDBY;
+
+  return current == expected;
+}
+
+// traffic lights' task
+void tlTask() {  
   switch (tlState) {
     case INITIAL:
+      Serial.println("Initial");
       initialTask(SN);
       initialTask(WE);
       break;
 
     case STANDBY:
+      Serial.println("Stand by");
       standByTask(SN);
       standByTask(WE);    
       break;
       
     case NORMAL0:
-      standByTask(SN);
-      standByTask(WE);
+      Serial.println("Normal0");
+      normal0Task(SN);
+      normal0Task(WE);
       break;
       
     case NORMAL1:
@@ -76,7 +101,7 @@ void tlTask() {
 }
 
 void initialTask(int tl) {
-  static unsigned long delay[N_TRAFFIC_LIGHTS];
+  static unsigned long delay[N_TRAFFIC_LIGHTS] = { millis(), millis() };
   
   unsigned long dt = millis() - delay[tl];
   unsigned long globalDt = millis();
@@ -88,15 +113,22 @@ void initialTask(int tl) {
     return;
   }
 
-  if (dt < INITIAL_TASK_PERIOD / 2) digitalWrite(light, HIGH);
-  else if (dt > INITIAL_TASK_PERIOD) delay[tl] = millis();
-  else digitalWrite(light, LOW);
+  if (dt < INITIAL_TASK_PERIOD / 2) {
+    digitalWrite(light, HIGH);
+  } else if (dt > INITIAL_TASK_PERIOD) {
+    delay[tl] = millis();
+  } else {
+    digitalWrite(light, LOW);
+  }
 }
 
 void standByTask(int tl) {
-  static unsigned long delay[N_TRAFFIC_LIGHTS];
+  static unsigned long delay[N_TRAFFIC_LIGHTS] = { millis(), millis() };
   unsigned long dt = millis() - delay[tl];
   int light = TL[tl][YELLOW];
+
+  digitalWrite(TL[tl][GREEN], LOW);
+  digitalWrite(TL[tl][RED], LOW);
 
   if (dt < STANDBY_TASK_PERIOD / 2) digitalWrite(light, HIGH);
   else if (dt > INITIAL_TASK_PERIOD) delay[tl] = millis();
@@ -104,8 +136,44 @@ void standByTask(int tl) {
 }
 
 void normal0Task(int tl) {
-
+  static unsigned long delay[N_TRAFFIC_LIGHTS] = { millis(), millis() };
+  unsigned long dt = millis() - delay[tl];
   
+  if (dt < NORMAL0_TASK_PERIOD * NORMAL0_TASK_DUTY_CYCLE * (1 - TRANSITION_PERCENTAGE)) {
+    Serial.print(dt); Serial.println(" One");
+    digitalWrite(TL[tl][YELLOW], LOW);
+    Serial.print("tl "); Serial.print(tl); Serial.print(" color "); Serial.println(GREEN);
+    digitalWrite(TL[tl][GREEN], HIGH);
+    if (!checkMalfunction(tl, RED, LOW)) return;
+    return;
+  }
+  
+  if (dt < NORMAL0_TASK_PERIOD * NORMAL0_TASK_DUTY_CYCLE) {
+    Serial.print(dt); Serial.println(" Two");
+    digitalWrite(TL[tl][GREEN], LOW);
+    digitalWrite(TL[tl][YELLOW], HIGH);
+    if (!checkMalfunction(tl, RED, LOW)) return;
+    return;
+  }
+
+  if (dt < NORMAL0_TASK_PERIOD -
+    (NORMAL0_TASK_PERIOD * NORMAL0_TASK_DUTY_CYCLE * TRANSITION_PERCENTAGE)) {
+    Serial.print(dt); Serial.println(" Three");
+    digitalWrite(TL[tl][YELLOW], LOW);
+    digitalWrite(TL[tl][RED], HIGH);
+    if (!checkMalfunction(tl, RED, HIGH)) return;
+    return;
+  }
+
+  if (dt < NORMAL0_TASK_PERIOD) {
+    Serial.print(dt); Serial.println(" Four");
+    digitalWrite(TL[tl][RED], LOW);
+    digitalWrite(TL[tl][YELLOW], HIGH);
+    if (!checkMalfunction(tl, RED, LOW)) return;
+    return;
+  }
+
+  delay[tl] = millis();
 }
 
 void receiveFrame(int howMany) {
@@ -117,6 +185,8 @@ void receiveFrame(int howMany) {
 }
 
 void setup() {
+  Serial.begin(9600); // debug purposes
+  
   pinMode(TL[SN][GREEN], OUTPUT);
   pinMode(TL[SN][YELLOW], OUTPUT);
   pinMode(TL[SN][RED], OUTPUT);
@@ -125,12 +195,15 @@ void setup() {
   pinMode(TL[WE][YELLOW], OUTPUT);
   pinMode(TL[WE][RED], OUTPUT);
 
+  pinMode(CHECKER[SN][RED], INPUT);
+  pinMode(CHECKER[WE][RED], INPUT);
+
   pinMode(LD_SN, INPUT);
   pinMode(LD_WE, INPUT);
 
   // join the I2C bus
-  Wire.begin();
-  Wire.onReceive(receiveFrame);
+  // Wire.begin();
+  // Wire.onReceive(receiveFrame);
 }
 
 void loop() {
