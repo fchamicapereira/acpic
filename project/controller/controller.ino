@@ -88,7 +88,7 @@ state tlState = INITIAL;
 
 struct green_wave {
   bool active;
-  bool adjusted;
+  byte adjusted;
   byte dir;
   long int t;
 };
@@ -294,13 +294,6 @@ void normal2Task() {
   if (millis() - epoch_counter > EPOCH_UNIT) {
     epoch++; epoch_counter = millis();
   }
-
-  if (pending_adjustment.active) {
-    Serial.print(pending_adjustment.t);
-    Serial.print(" ");
-    Serial.println(epoch);
-    // Serial.println(abs(pending_adjustment.t - epoch) / 10);
-  }
   
   if (dt < NORMAL1_TASK_PERIOD * duty_cycle - TRANSITION_TIME) {
     if (state != 0) {
@@ -308,15 +301,10 @@ void normal2Task() {
       broadcast(epoch, s == 1 ? R2G_S : R2G_N);
     }
 
-    if (pending_adjustment.active && pending_adjustment.dir == SN
-      && (abs(pending_adjustment.t - epoch) / 10) %  NORMAL1_TASK_PERIOD >= TRAVEL_DISTANCE - TRANSITION_TIME
-      && (abs(pending_adjustment.t - epoch) / 10) %  NORMAL1_TASK_PERIOD <= TRAVEL_DISTANCE + TRANSITION_TIME) {
-      pending_adjustment.active = false;
-     }
-
-    if (pending_adjustment.active && !pending_adjustment.adjusted) {
+    // check the phase difference with an error of 2 x TRANSITION_TIME
+    if (pending_adjustment.active && pending_adjustment.adjusted < 1) {
       delay += TRANSITION_TIME;
-      pending_adjustment.adjusted = true;
+      pending_adjustment.adjusted = 1;
     }
     
     digitalWrite(TL[SN][YELLOW], LOW);
@@ -345,15 +333,9 @@ void normal2Task() {
       broadcast(epoch, w == 1 ? R2G_W : R2G_E);
     }
 
-    if (pending_adjustment.active && pending_adjustment.dir == WE
-      && (abs(pending_adjustment.t - epoch) / 10) %  NORMAL1_TASK_PERIOD >= TRAVEL_DISTANCE - TRANSITION_TIME
-      && (abs(pending_adjustment.t - epoch) / 10) %  NORMAL1_TASK_PERIOD <= TRAVEL_DISTANCE + TRANSITION_TIME) {
-      pending_adjustment.active = false;
-    }  
-
-    if (pending_adjustment.active && !pending_adjustment.adjusted) {
+    if (pending_adjustment.active && pending_adjustment.adjusted < 2) {
       delay += TRANSITION_TIME;
-      pending_adjustment.adjusted = true;
+      pending_adjustment.adjusted = 2;
     }
     
     digitalWrite(TL[SN][YELLOW], LOW);
@@ -387,7 +369,13 @@ void normal2Task() {
   CARS[SN] = 0; // reset car counter
   CARS[WE] = 0; // reset car counter
 
-  pending_adjustment.adjusted = false;
+  if (pending_adjustment.active && pending_adjustment.dir == WE
+    && (abs(pending_adjustment.t - epoch) / 10) %  NORMAL1_TASK_PERIOD >= TRAVEL_DISTANCE - TRANSITION_TIME
+    && (abs(pending_adjustment.t - epoch) / 10) %  NORMAL1_TASK_PERIOD <= TRAVEL_DISTANCE + TRANSITION_TIME) {
+    pending_adjustment.active = false;
+  } else {
+    pending_adjustment.adjusted = 0;
+  }
 }
 
 void readSensor(int pos) {
@@ -450,7 +438,6 @@ void receiveFrame(int howMany) {
     if (rel_x == 0 && rel_y > 0 && f.cars.n == sender_max_flow && CARS[SN] == local_max_flow) {
       pending_adjustment.active = true;
       pending_adjustment.t = f.t;
-      pending_adjustment.adjusted = false;
       pending_adjustment.dir = SN;
     }
     
@@ -459,7 +446,6 @@ void receiveFrame(int howMany) {
     else if (rel_x == 0 && rel_y < 0 && f.cars.s == sender_max_flow && CARS[SN] == local_max_flow) {
       pending_adjustment.active = true;
       pending_adjustment.t = f.t;
-      pending_adjustment.adjusted = false;
       pending_adjustment.dir = SN;
     }
 
@@ -469,8 +455,8 @@ void receiveFrame(int howMany) {
     else if (rel_x < 0 && rel_y == 0 && f.cars.w == sender_max_flow && CARS[WE] == local_max_flow) {
       pending_adjustment.active = true;
       pending_adjustment.t = f.t;
-      pending_adjustment.adjusted = false;
       pending_adjustment.dir = WE;
+      pending_adjustment.adjusted = 0;
     }
 
     // sender is further east
@@ -478,7 +464,6 @@ void receiveFrame(int howMany) {
     else if (rel_x > 0 && rel_y == 0 && f.cars.e == sender_max_flow && CARS[WE] == local_max_flow) {
       pending_adjustment.active = true;
       pending_adjustment.t = f.t;
-      pending_adjustment.adjusted = false;
       pending_adjustment.dir = WE;
     }
   }
