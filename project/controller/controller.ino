@@ -400,47 +400,9 @@ void readSensor(int pos) {
   // 0 -> 1 (button pushed)
   if (value == 1) {
     CARS[pos]++; // one is passing
-    Serial.print("PUSHED "); Serial.print(pos); Serial.print(" "); Serial.println(CARS[pos]);
   }
 
   lastValue[pos] = value;
-}
-
-void setup() {
-  Serial.begin(9600); // debug purposes
-  
-  pinMode(TL[SN][GREEN], OUTPUT);
-  pinMode(TL[SN][YELLOW], OUTPUT);
-  pinMode(TL[SN][RED], OUTPUT);
-
-  pinMode(TL[WE][GREEN], OUTPUT);
-  pinMode(TL[WE][YELLOW], OUTPUT);
-  pinMode(TL[WE][RED], OUTPUT);
-
-  pinMode(CHECKER[SN][RED], INPUT);
-  pinMode(CHECKER[WE][RED], INPUT);
-
-  pinMode(SENSORS[SN], INPUT);
-  pinMode(SENSORS[WE], INPUT);
-
-  int x_value = analogRead(X_INPUT);
-  int ds = 1024.0 / 8;
-  for (int i = 0; i < 8; i++) {
-    Serial.print(i);
-    Serial.print(" ");
-    Serial.print(ds * i);
-    Serial.print(" => ");
-    Serial.println(ds * (i + 1) - 1);
-  }
-  
-  Serial.println(x_value);
-  Serial.println(x_value * 1.0 / ds);
-
-  // join the I2C bus
-  Wire.begin();
-  Wire.onReceive(receiveFrame);
-
-  pending_adjustment.active = false;
 }
 
 void receiveFrame(int howMany) {
@@ -514,23 +476,6 @@ void receiveFrame(int howMany) {
       pending_adjustment.adjusted = false;
       pending_adjustment.dir = WE;
     }
-    
-    Serial.print("READ ");
-    Serial.print(f.dst);
-    Serial.print(" ");
-    Serial.print(f.src);
-    Serial.print(" ");
-    Serial.print(f.event);
-    Serial.print(" ");
-    Serial.print(f.cars.n);
-    Serial.print(" ");
-    Serial.print(f.cars.e);
-    Serial.print(" ");
-    Serial.print(f.cars.s);
-    Serial.print(" ");
-    Serial.print(f.cars.w);
-    Serial.print(" ");
-    Serial.println(f.t);
   }
 }
 
@@ -547,7 +492,7 @@ void send(unsigned long epoch, byte action, byte dst_x, byte dst_y) {
   frame f;
   
   f.dst = dst_y << 4 + dst_x; // 0 dst_x2 dst_x1 dst_x0 0 dst_y2 dst_y1 dst_y0
-  f.src = y << 4 + x; // 0 x2 x1 x0 0 y2 y1 y0
+  f.src = y << 4 + x;         // 0 x2 x1 x0 0 y2 y1 y0
   
   f.event = action;
   
@@ -557,12 +502,47 @@ void send(unsigned long epoch, byte action, byte dst_x, byte dst_y) {
   f.cars.w = w == 1 ? CARS[WE] : 0;
   
   f.t = epoch;
-
-  Serial.println("WRITE");
   
   Wire.beginTransmission(-1);
   Wire.write((byte*)&f, sizeof(frame));
   Wire.endTransmission();
+}
+
+void setup() {
+  Serial.begin(9600); // debug purposes
+  
+  pinMode(TL[SN][GREEN], OUTPUT);
+  pinMode(TL[SN][YELLOW], OUTPUT);
+  pinMode(TL[SN][RED], OUTPUT);
+
+  pinMode(TL[WE][GREEN], OUTPUT);
+  pinMode(TL[WE][YELLOW], OUTPUT);
+  pinMode(TL[WE][RED], OUTPUT);
+
+  pinMode(CHECKER[SN][RED], INPUT);
+  pinMode(CHECKER[WE][RED], INPUT);
+
+  pinMode(SENSORS[SN], INPUT);
+  pinMode(SENSORS[WE], INPUT);
+
+  int x_value = analogRead(X_INPUT);
+  int ds = 1024.0 / 8;
+  for (int i = 0; i < 8; i++) {
+    Serial.print(i);
+    Serial.print(" ");
+    Serial.print(ds * i);
+    Serial.print(" => ");
+    Serial.println(ds * (i + 1) - 1);
+  }
+  
+  Serial.println(x_value);
+  Serial.println(x_value * 1.0 / ds);
+
+  // join the I2C bus
+  Wire.begin();
+  Wire.onReceive(receiveFrame);
+
+  pending_adjustment.active = false;
 }
 
 void loop() {
