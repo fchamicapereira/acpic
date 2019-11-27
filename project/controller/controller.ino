@@ -301,7 +301,9 @@ void normal2Task() {
       broadcast(epoch, s == 1 ? R2G_S : R2G_N);
     }
 
-    if (pending_adjustment.active && pending_adjustment.adjusted < 1) {
+    if (pending_adjustment.active && pending_adjustment.adjusted < 1
+    && ((abs(pending_adjustment.t - epoch) / 10) %  NORMAL1_TASK_PERIOD < TRAVEL_DISTANCE - TRANSITION_TIME
+    || (abs(pending_adjustment.t - epoch) / 10) %  NORMAL1_TASK_PERIOD > TRAVEL_DISTANCE + TRANSITION_TIME)) {
       delay += TRANSITION_TIME;
       pending_adjustment.adjusted = 1;
     }
@@ -332,7 +334,9 @@ void normal2Task() {
       broadcast(epoch, w == 1 ? R2G_W : R2G_E);
     }
 
-    if (pending_adjustment.active && pending_adjustment.adjusted < 2) {
+    if (pending_adjustment.active && pending_adjustment.adjusted < 2
+    && ((abs(pending_adjustment.t - epoch) / 10) %  NORMAL1_TASK_PERIOD < TRAVEL_DISTANCE - TRANSITION_TIME
+    || (abs(pending_adjustment.t - epoch) / 10) %  NORMAL1_TASK_PERIOD > TRAVEL_DISTANCE + TRANSITION_TIME)) {
       delay += TRANSITION_TIME;
       pending_adjustment.adjusted = 2;
     }
@@ -369,12 +373,12 @@ void normal2Task() {
   CARS[WE] = 0; // reset car counter
 
   // check the phase difference with an error of 2 x TRANSITION_TIME
+  /*
   if (pending_adjustment.active && pending_adjustment.dir == WE
     && (abs(pending_adjustment.t - epoch) / 10) %  NORMAL1_TASK_PERIOD >= TRAVEL_DISTANCE - TRANSITION_TIME
     && (abs(pending_adjustment.t - epoch) / 10) %  NORMAL1_TASK_PERIOD <= TRAVEL_DISTANCE + TRANSITION_TIME) {
-    pending_adjustment.active = false;
-  }
-  
+    */
+  pending_adjustment.active = false;  
   pending_adjustment.adjusted = 0;
 }
 
