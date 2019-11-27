@@ -373,9 +373,9 @@ void normal2Task() {
     && (abs(pending_adjustment.t - epoch) / 10) %  NORMAL1_TASK_PERIOD >= TRAVEL_DISTANCE - TRANSITION_TIME
     && (abs(pending_adjustment.t - epoch) / 10) %  NORMAL1_TASK_PERIOD <= TRAVEL_DISTANCE + TRANSITION_TIME) {
     pending_adjustment.active = false;
-  } else {
-    pending_adjustment.adjusted = 0;
   }
+  
+  pending_adjustment.adjusted = 0;
 }
 
 void readSensor(int pos) {
@@ -456,7 +456,6 @@ void receiveFrame(int howMany) {
       pending_adjustment.active = true;
       pending_adjustment.t = f.t;
       pending_adjustment.dir = WE;
-      pending_adjustment.adjusted = 0;
     }
 
     // sender is further east
