@@ -301,7 +301,6 @@ void normal2Task() {
       broadcast(epoch, s == 1 ? R2G_S : R2G_N);
     }
 
-    // check the phase difference with an error of 2 x TRANSITION_TIME
     if (pending_adjustment.active && pending_adjustment.adjusted < 1) {
       delay += TRANSITION_TIME;
       pending_adjustment.adjusted = 1;
@@ -369,6 +368,7 @@ void normal2Task() {
   CARS[SN] = 0; // reset car counter
   CARS[WE] = 0; // reset car counter
 
+  // check the phase difference with an error of 2 x TRANSITION_TIME
   if (pending_adjustment.active && pending_adjustment.dir == WE
     && (abs(pending_adjustment.t - epoch) / 10) %  NORMAL1_TASK_PERIOD >= TRAVEL_DISTANCE - TRANSITION_TIME
     && (abs(pending_adjustment.t - epoch) / 10) %  NORMAL1_TASK_PERIOD <= TRAVEL_DISTANCE + TRANSITION_TIME) {
@@ -516,19 +516,6 @@ void setup() {
 
   pinMode(SENSORS[SN], INPUT);
   pinMode(SENSORS[WE], INPUT);
-
-  int x_value = analogRead(X_INPUT);
-  int ds = 1024.0 / 8;
-  for (int i = 0; i < 8; i++) {
-    Serial.print(i);
-    Serial.print(" ");
-    Serial.print(ds * i);
-    Serial.print(" => ");
-    Serial.println(ds * (i + 1) - 1);
-  }
-  
-  Serial.println(x_value);
-  Serial.println(x_value * 1.0 / ds);
 
   // join the I2C bus
   Wire.begin();
